@@ -2,10 +2,10 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.9 1999/03/29 18:38:31 eserte Exp $
+# $Id: FontDialog.pm,v 1.10 1999/06/09 01:31:25 eserte Exp $
 # Author: Slaven Rezic
 #
-# Copyright (C) 1998 Slaven Rezic. All rights reserved.
+# Copyright (C) 1998,1999 Slaven Rezic. All rights reserved.
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
 #
@@ -23,7 +23,7 @@ use vars qw($VERSION @ISA);
 
 Construct Tk::Widget 'FontDialog';
 
-$VERSION = '0.03';
+$VERSION = '0.04';
 
 sub Populate {
     my($w, $args) = @_;
@@ -68,9 +68,10 @@ sub Populate {
     my $fstyle = $f1->Frame->pack(-expand => 1, -fill => 'both',
 				  -side => 'left');
 
+    my(%family_res) = _get_label(delete $args->{'-familylabel'} 
+				 || '~Family:');
     $ffam->Label
-      (-text => 'Family:',
-       -underline => 0,
+      (@{$family_res{'args'}},
        -font => $bold_font,
       )->pack(-anchor => 'w');
 
@@ -83,9 +84,10 @@ sub Populate {
       )->pack(-expand => 1, -fill => 'both', -anchor => 'w');
     $w->Advertise('family_list' => $famlb);
 
+    my(%size_res) = _get_label(delete $args->{'-sizelabel'}
+			       || '~Size:');
     $fsize->Label
-      (-text => 'Size:',
-       -underline => 0,
+      (@{$size_res{'args'}},
        -font => $bold_font,
       )->pack(-anchor => 'w');
 
@@ -119,44 +121,51 @@ sub Populate {
     my $fstyle2 = $fstyle->Frame->pack(-expand => 1, -fill => 'both',
 				       -side => 'left');
 
+    my(%weight_res) = _get_label(delete $args->{-weightlabel}
+				 || '~Bold');
     my $weight = $w->fontActual($w->{'curr_font'}, -weight);
     my $wcb = $fstyle2->Checkbutton
       (-variable => \$weight,
        -font => $bold_font,
        -onvalue => 'bold',
        -offvalue => 'normal',
-       -text => 'Bold',
-       -underline => 0, 
+       @{$weight_res{'args'}},
        -command => sub { $w->UpdateFont(-weight => $weight) }
       )->pack(-anchor => 'w', -expand => 1);
+
+    my(%slant_res) = _get_label(delete $args->{-slantlabel}
+				 || '~Italic');
     my $slant = $w->fontActual($w->{'curr_font'}, -slant);
     my $scb = $fstyle2->Checkbutton
       (-variable => \$slant,
        -font => $italic_font,
        -onvalue => 'italic',
        -offvalue => 'roman',
-       -text => 'Italic',
-       -underline => 0,
+       @{$slant_res{'args'}},
        -command => sub { $w->UpdateFont(-slant => $slant) }
       )->pack(-anchor => 'w', -expand => 1);
+
+    my(%underline_res) = _get_label(delete $args->{-underlinelabel}
+				    || '~Underline');
     my $underline = $w->fontActual($w->{'curr_font'}, -underline);
     my $ucb = $fstyle2->Checkbutton
       (-variable => \$underline,
        -font => $underline_font,
        -onvalue => 1,
        -offvalue => 0,
-       -text => 'Underline',
-       -underline => 0,
+       @{$underline_res{'args'}},
        -command => sub { $w->UpdateFont(-underline => $underline) }
       )->pack(-anchor => 'w', -expand => 1);
+
+    my(%overstrike_res) = _get_label(delete $args->{-overstrikelabel}
+				     || 'O~verstrike');
     my $overstrike = $w->fontActual($w->{'curr_font'}, -overstrike);
     my $ocb = $fstyle2->Checkbutton
       (-variable => \$overstrike,
        -font => $overstrike_font,
        -onvalue => 1,
        -offvalue => 0,
-       -text => 'Overstrike',
-       -underline => 1,
+       @{$overstrike_res{'args'}},
        -command => sub { $w->UpdateFont(-overstrike => $overstrike) }
       )->pack(-anchor => 'w', -expand => 1);
 
@@ -171,30 +180,35 @@ sub Populate {
 
     my $bf = $w->Frame->pack(-fill => 'x', -padx => 3, -pady => 3);
 
+    my(%ok_res) = _get_label(delete $args->{'-oklabel'}
+			     || "~OK");
     my $okb = $bf->Button
-      (-text => 'OK',
-       -underline => 0,
+      (@{$ok_res{'args'}},
        -fg => 'green4',
        -font => $bold_font,
        -command => ['Accept', $w ],
       )->grid(-column => 0, -row => 0,
 	      -sticky => 'ew', -padx => 5);
+
+    my(%apply_res) = _get_label(delete $args->{'-applylabel'}
+				|| "~Apply");
     my $applyb;
-    # XXX evtl. in configure erledigne
+    # XXX evtl. in configure erledigen
     if ($args->{-applycmd}) {
 	my $applycmd = delete $args->{-applycmd};
 	$applyb = $bf->Button
-	  (-text => 'Apply',
-	   -underline => 0,
+	  (@{$apply_res{'args'}},
 	   -fg => 'yellow4',
 	   -font => $bold_font,
 	   -command => sub { $applycmd->($w->ReturnFont($w->{'curr_font'})) },
 	  )->grid(-column => 1, -row => 0,
 		  -sticky => 'ew', -padx => 5);
     }
+
+    my(%cancel_res) = _get_label(delete $args->{'-cancellabel'}
+				 || "~Cancel");
     my $cancelb = $bf->Button
-      (-text => 'Cancel',
-       -underline => 0,
+      (@{$cancel_res{'args'}},
        -fg => 'red',
        -font => $bold_font,
        -command => ['Cancel', $w ],
@@ -202,16 +216,19 @@ sub Populate {
 	      -sticky => 'ew', -padx => 5);
     $bf->grid('columnconfigure', 3, -weight => 1.0);
 
+    my(%altsample_res) = _get_label(delete $args->{'-altsamplelabel'}
+				    || "A~lt sample");
     my $altcb = $bf->Checkbutton
-      (-text => 'Alt sample',
-       -underline => 1,
+      (@{$altsample_res{'args'}},
        -variable => \$w->{'alt_sample'},
        -command => sub { $w->UpdateFont; },
       )->grid(-column => 4, -row => 0,
 	      -sticky => 'ew', -padx => 5);
+
+    my(%nicefonts_res) = _get_label(delete $args->{'-nicefontslabel'}
+				    || "~Nicefonts");
     my $nicecb = $bf->Checkbutton
-      (-text => 'Nicefonts',
-       -underline => 0,
+      (@{$nicefonts_res{'args'}},
        -variable => \$w->{Configure}{-nicefont},
        -command => sub { $w->InsertFamilies; },
       )->grid(-column => 5, -row => 0,
@@ -222,29 +239,40 @@ sub Populate {
     $w->grid('rowconfigure',    0, -minsize => 4);
     $w->grid('rowconfigure',    8, -minsize => 4);
 
-    $w->bind('<f>' => sub { $famlb->focus });
-    $w->bind('<s>' => sub { $sizelb->focus });
+    $w->bind("<$family_res{'key'}>" => sub { $famlb->focus }) 
+      if $family_res{'key'};
+    $w->bind("<$size_res{'key'}>"   => sub { $sizelb->focus })
+      if $size_res{'key'};
 
-    $w->bind('<b>' => sub { $wcb->invoke });
-    $w->bind('<i>' => sub { $scb->invoke });
-    $w->bind('<u>' => sub { $ucb->invoke });
-    $w->bind('<v>' => sub { $ocb->invoke });
+    $w->bind("<$weight_res{'key'}>"     => sub { $wcb->invoke })
+      if $weight_res{'key'};
+    $w->bind("<$slant_res{'key'}>"      => sub { $scb->invoke })
+      if $slant_res{'key'};
+    $w->bind("<$underline_res{'key'}>"  => sub { $ucb->invoke })
+      if $underline_res{'key'};
+    $w->bind("<$overstrike_res{'key'}>" => sub { $ocb->invoke })
+      if $overstrike_res{'key'};
 
-    $w->bind('<o>'      => sub { $okb->invoke });
-    $w->bind('<Return>' => sub { $okb->invoke });
-    $w->bind('<a>'      => sub { $applyb->invoke }) if $applyb;
-    $w->bind('<c>'      => sub { $cancelb->invoke });
-    $w->bind('<Escape>' => sub { $cancelb->invoke });
-    $w->bind('<l>'      => sub { $altcb->invoke });
-    $w->bind('<n>'      => sub { $nicecb->invoke });
+    $w->bind("<$ok_res{'key'}>"      => sub { $okb->invoke })
+      if $ok_res{'key'};
+    $w->bind("<Return>" => sub { $okb->invoke });
+    $w->bind("<$apply_res{'key'}>"   => sub { $applyb->invoke })
+      if $applyb && $apply_res{'key'};
+    $w->bind("<$cancel_res{'key'}>"  => sub { $cancelb->invoke })
+      if $cancel_res{'key'};
+    $w->bind("<Escape>" => sub { $cancelb->invoke });
+    $w->bind("<$altsample_res{'key'}>" => sub { $altcb->invoke })
+      if $altsample_res{'key'};
+    $w->bind("<$nicefonts_res{'key'}>" => sub { $nicecb->invoke })
+      if $nicefonts_res{'key'};
 
     # XXX -subbg: ugly workaround...
     $w->ConfigSpecs
-      (-subbg => [ 'PASSIVE', 'subBackground', 'SubBackground', 'white'],
-       -nicefont => [ 'PASSIVE', undef, undef, 0],
-       -sampletext => ['PASSIVE', undef, undef, 
-		       'The Quick Brown Fox Jumps Over The Lazy Dog.'],
-       -title => [ 'METHOD', undef, undef, 'Choose font'],
+      (-subbg       => [ 'PASSIVE', 'subBackground', 'SubBackground', 'white'],
+       -nicefont    => [ 'PASSIVE', undef, undef, 0],
+       -sampletext  => [ 'PASSIVE', undef, undef, 
+		         'The Quick Brown Fox Jumps Over The Lazy Dog.'],
+       -title       => [ 'METHOD', undef, undef, 'Choose font'],
        DEFAULT   => [ 'family_list' ],
       );
 
@@ -388,6 +416,22 @@ sub InsertFamilies {
 
 }
 
+# get position of the tilde character and delete it
+sub _get_label {
+    my $s = shift;
+    my %res;
+    if ($s =~ s/(.*)~(.)/$1$2/) {
+	my $key = lc($2);
+	my $underline = length($1);
+	@{$res{'args'}} = (-text      => $s,
+			   -underline => $underline);
+	$res{'key'}  = $key;
+    } else {
+	@{$res{'args'}} = (-text => $s);
+    }
+    %res;
+}
+
 # put some dirt into Tk::Widget...
 package Tk::Widget;
 
@@ -463,6 +507,39 @@ use "Franz jagt im komplett verwahrlosten Taxi quer durch Bayern".
 
 =back
 
+=head1 INTERNATIONALIZATION
+
+There are a couple of options to change the labels of the dialog. Note
+that you can prepend a tilde (C<~>) to get an accelerator key with
+C<Alt>. Here is a list of these options with the default (English)
+setting:
+
+=over 4
+
+=item -familylabel (Family:)
+
+=item -sizelabel (Size:)
+
+=item -weightlabel (Bold)
+
+=item -slantlabel (Italic)
+
+=item -underlinelabel (Underline)
+
+=item -overstrikelabel (Overstrike)
+
+=item -oklabel (OK)
+
+=item -applylabel (Apply)
+
+=item -cancellabel (Cancel)
+
+=item -altsamplelabel (Alt sample)
+
+=item -nicefontslabel (Nicefonts)
+
+=back
+
 =head1 BUGS/TODO
 
   - better POD
@@ -484,7 +561,7 @@ Slaven Rezic <eserte@cs.tu-berlin.de>
 
 =head1 COPYRIGHT
 
-Copyright (c) 1998 Slaven Rezic. All rights reserved.
+Copyright (c) 1998,1999 Slaven Rezic. All rights reserved.
 This module is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
