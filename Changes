@@ -1,5 +1,9 @@
 Revision history for Perl extension Tk::FontDialog.
 
+0.10
+	- fixed test error if "if.pm" is not available (thanks Jack!)
+	- canvas scrollregion fix
+
 0.09
 	- cancel waitVariable if dialog is destroyed
 	- test now in BATCH mode per default
