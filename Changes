@@ -1,5 +1,8 @@
 Revision history for Perl extension Tk::FontDialog.
 
+0.06
+	- new options: -fixedfont, -fixedfontsbutton, -nicefontsbutton
+
 0.04
 	- internationalization
 	- solved problems with empty family names and dots in family names
