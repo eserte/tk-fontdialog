@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.1 1998/08/23 02:08:41 eserte Exp $
+# $Id: FontDialog.pm,v 1.2 1998/08/23 03:06:38 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998 Slaven Rezic. All rights reserved.
@@ -34,7 +34,7 @@ sub Populate {
     $w->SUPER::Populate($args);
     $w->protocol('WM_DELETE_WINDOW' => ['Cancel', $w ]);
 
-    $w->title($args->{-title} || 'Choose a font');
+    $w->withdraw;
 
     if (exists $args->{-dialogfont}) {
 	$w->optionAdd('*font' => delete $args->{-dialogfont});
@@ -185,7 +185,16 @@ sub Populate {
        -command => ['Cancel', $w ],
       )->grid(-column => 2, -row => 0,
 	      -sticky => 'ew', -padx => 5);
+    $bf->grid('columnconfigure', 3, -weight => 1.0);
 
+    my $nicecb = $bf->Checkbutton
+      (-text => 'Nicefonts',
+       -underline => 0,
+       -variable => \$w->{Configure}{-nicefont},
+       -command => sub { $w->InsertFamilies; },
+      )->grid(-column => 4, -row => 0,
+	      -sticky => 'ew', -padx => 5);
+    
     $w->grid('columnconfigure', 0, -minsize => 4);
     $w->grid('columnconfigure', 4, -minsize => 4);
     $w->grid('rowconfigure',    0, -minsize => 4);
@@ -205,22 +214,17 @@ sub Populate {
     $w->bind('<c>'      => sub { $cancelb->invoke });
     $w->bind('<Escape>' => sub { $cancelb->invoke });
 
-    if (exists $args->{-sampletext}) {
-	$w->{-sampletext} = delete $args->{-sampletext};
-    } else {
-	$w->{-sampletext} = 'The Quick Brown Fox Jumps Over The Lazy Dog';
-    }
-
-    $w->InsertFamilies();
-    $w->UpdateFont();
-    
     # XXX ugly workaround...
     $w->ConfigSpecs
-      (-bg => [ ['family_list', 'size_list', 'sample_canvas'],
-		'background', 'Background', 'white',]
-#       -title => [$w, 'title', 'Title', 'Choose a font'],
-       -nicefont => [ 'PASSIVE', 'niceFont', 'Font', 0],
+      (-subbg => [ 'PASSIVE', 'subBackground', 'SubBackground', 'white'],
+       -nicefont => [ 'PASSIVE', undef, undef, 0],
+       -sampletext => ['PASSIVE', undef, undef, 
+		       'The Quick Brown Fox Jumps Over The Lazy Dog.'],
+       -title => [ 'METHOD', undef, undef, 'Choose a font'],
+       DEFAULT   => [ 'family_list' ],
       );
+
+    $w->Delegates(DEFAULT => 'family_list');
 
     $w;
 }
@@ -234,7 +238,7 @@ sub UpdateFont {
 	$w->Subwidget('sample_canvas')->createText
 	  (2, 18,
 	   -anchor => 'w',
-	   -text => $w->{-sampletext},
+	   -text => $w->cget(-sampletext),
 	   -font => $w->{'curr_font'},
 	   -tags => 'font');
     };
@@ -253,6 +257,13 @@ sub Accept {
 
 sub Show {
     my($w, @args) = @_;
+
+    $w->InsertFamilies();
+    $w->UpdateFont();
+    $w->Subwidget('family_list')->configure(-bg => $w->cget(-subbg));
+    $w->Subwidget('size_list')->configure(-bg => $w->cget(-subbg));
+    $w->Subwidget('sample_canvas')->configure(-bg => $w->cget(-subbg));
+
     $w->Popup(@args); 
     $w->waitVisibility;
     $w->focus;
@@ -264,23 +275,28 @@ sub Show {
 sub InsertFamilies {
     my $w = shift;
 
-    my @fam = sort $w->fontFamilies;
-    my $nicefont = $w->cget(-nicefont); # XXX name?
-    my $curr_family = $w->fontActual($w->{'curr_font'}, -family);
-    my $famlb = $w->Subwidget('family_list');
-    $famlb->delete('all');
-    foreach my $fam (@fam) {
-	(my $u_fam = $fam) =~ s/\b(.)/\u$1/g;
-	my $f_style = $famlb->ItemStyle('text', 
-					($nicefont ? (-font => "{$fam}") : ()),
-					-bg => 'white'
-				       );
-	$famlb->add($fam, -text => $u_fam, -style => $f_style);
-	if ($curr_family eq $fam) {
-	    $famlb->selectionSet($fam);
-	    $famlb->see($fam);
+    $w->Busy;
+    eval {
+	my $nicefont = $w->cget(-nicefont); # XXX name?
+	my $curr_family = $w->fontActual($w->{'curr_font'}, -family);
+	my $famlb = $w->Subwidget('family_list');
+	$famlb->delete('all');
+	my @fam = sort $w->fontFamilies;
+	foreach my $fam (@fam) {
+	    (my $u_fam = $fam) =~ s/\b(.)/\u$1/g;
+	    my $f_style = $famlb->ItemStyle
+	      ('text', 
+	       ($nicefont ? (-font => "{$fam}") : ()),
+	       -bg => 'white'
+	      );
+	    $famlb->add($fam, -text => $u_fam, -style => $f_style);
+	    if ($curr_family eq $fam) {
+		$famlb->selectionSet($fam);
+		$famlb->see($fam);
+	    }
 	}
-    }
+    };
+    $w->Unbusy;
 
 }
 
@@ -321,6 +337,11 @@ Tk::FontDialog implements a font dialog widget. XXX
 
   - better POD
   - XXX
+  - ConfigSpecs handling is poor
+    put at least -font into configspecs
+  - maybe rename -dialogfont to -font and -font to -choosefont?
+  - run test, call dialog for 2nd time: immediate change of font?
+  - better name for nicefont
 
 =head1 SEE ALSO
 
