@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.19 2004/03/15 21:27:03 eserte Exp $
+# $Id: FontDialog.pm,v 1.20 2004/04/01 19:39:44 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998,1999,2003,2004 Slaven Rezic. All rights reserved.
@@ -23,7 +23,7 @@ use vars qw($VERSION @ISA);
 
 Construct Tk::Widget 'FontDialog';
 
-$VERSION = '0.09';
+$VERSION = '0.10';
 
 sub Populate {
     my($w, $args) = @_;
@@ -356,6 +356,7 @@ sub UpdateFont {
 			   -font => $w->{'curr_font'},
 			   -tags => 'font');
 	}
+	$c->configure(-scrollregion => [$c->bbox("all")]);
     };
     warn $@ if $@;
 #    $w->Unbusy;
