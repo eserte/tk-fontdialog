@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.11 1999/06/09 23:45:19 eserte Exp $
+# $Id: FontDialog.pm,v 1.12 1999/09/23 19:51:56 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998,1999 Slaven Rezic. All rights reserved.
@@ -23,7 +23,7 @@ use vars qw($VERSION @ISA);
 
 Construct Tk::Widget 'FontDialog';
 
-$VERSION = '0.04';
+$VERSION = '0.05';
 
 sub Populate {
     my($w, $args) = @_;
@@ -351,6 +351,7 @@ sub Show {
     my $grabStatus = $oldGrab->grab('status') if ($oldGrab);
     $w->grab;
 
+#    $w->InsertX11Families();
     $w->InsertFamilies();
     $w->UpdateFont();
     # XXX ugly...
@@ -359,7 +360,8 @@ sub Show {
     $w->Subwidget('sample_canvas')->configure(-bg => $w->cget(-subbg));
 
     $w->Popup(@args); 
-    $w->waitVisibility;
+    # XXX won't work with 800.015?
+    #$w->waitVisibility;
     $w->focus;
     $w->waitVariable(\$w->{Selected});
 
@@ -430,6 +432,52 @@ sub InsertFamilies {
 
 }
 
+# warn geht nicht... warum will ich das überhaupt? kann ich Tk::X11Font
+# verwenden?
+sub InsertX11Families {
+    my $w = shift;
+    require Tk::Xlib;
+    my $old_cursor = $w->cget(-cursor);
+    $w->configure(-cursor => 'watch');
+    $w->idletasks;
+    eval {
+	$w->{'family_index'} = [];
+	my $nicefont = $w->cget(-nicefont); # XXX name?
+	my $curr_family = $w->fontActual($w->{'curr_font'}, -family);
+	my $famlb = $w->Subwidget('family_list');
+	$famlb->delete('all');
+	my @try_fam = $w->Display->XListFonts("*", 10000);
+	my %try_fam;
+	foreach (@try_fam) {
+	    if (/^-([^-]+-[^-]+)/) { 
+		$try_fam{$1}++;
+	    }
+	}
+	my @fam = sort keys %try_fam;
+	my $bg = $w->cget(-subbg);
+	my $i = 0;
+	foreach my $fam (@fam) {
+	    next if $fam eq '';
+	    (my $u_fam = $fam) =~ s/\b(.)/\u$1/g;
+	    $w->{'familiy_index'}[$i] = $fam;
+	    my $f_style = $famlb->ItemStyle
+	      ('text', 
+	       ($nicefont ? (-font => "{$fam}") : ()),
+	       -bg => $bg,
+	      );
+	    $famlb->add($i, -text => $u_fam, -style => $f_style);
+	    if ($curr_family eq $fam) {
+		$famlb->selectionSet($i);
+		$famlb->see($i);
+	    }
+	    $i++;
+	}
+    };
+    warn $@ if $@;
+    $w->configure(-cursor => $old_cursor);
+    
+}
+
 # get position of the tilde character and delete it
 sub _get_label {
     my $s = shift;
@@ -447,7 +495,8 @@ sub _get_label {
 }
 
 # put some dirt into Tk::Widget...
-package Tk::Widget;
+package       # hide from CPAN indexer
+  Tk::Widget;
 
 # XXX Refont Canvases?
 sub RefontTree {
