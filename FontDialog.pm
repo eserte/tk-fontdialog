@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.15 2001/01/19 00:28:09 eserte Exp $
+# $Id: FontDialog.pm,v 1.16 2002/10/23 08:56:45 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998,1999 Slaven Rezic. All rights reserved.
@@ -39,8 +39,15 @@ sub Populate {
     if (exists $args->{-font}) {
 	$w->optionAdd('*font' => delete $args->{-font});
     }
-    my $dialog_font = $w->fontCreate($w->fontActual
-				     ($w->optionGet("font", "*")));
+    my $dialog_font;
+    my $font_name = $w->optionGet("font", "*");
+    if (!defined $font_name) {
+	my $l = $w->Label;
+	$dialog_font = $l->cget(-font);
+	warn $dialog_font;
+    } else {
+	$dialog_font = $w->fontCreate($w->fontActual($font_name));
+    }
     if (exists $args->{-initfont}) {
 	$w->{'curr_font'} = $w->fontCreate($w->fontActual
 					   (delete $args->{-initfont}));
