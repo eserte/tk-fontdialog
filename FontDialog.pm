@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.2 1998/08/23 03:06:38 eserte Exp $
+# $Id: FontDialog.pm,v 1.3 1998/08/25 17:51:25 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998 Slaven Rezic. All rights reserved.
@@ -15,7 +15,7 @@
 
 package Tk::FontDialog;
 
-use Tk 800; # new font code
+use Tk 800; # new font function
 
 use strict;
 use vars qw($VERSION @ISA);
@@ -36,17 +36,18 @@ sub Populate {
 
     $w->withdraw;
 
-    if (exists $args->{-dialogfont}) {
-	$w->optionAdd('*font' => delete $args->{-dialogfont});
+    if (exists $args->{-font}) {
+	$w->optionAdd('*font' => delete $args->{-font});
     }
     my $dialog_font = $w->fontCreate($w->fontActual
 				     ($w->optionGet("font", "*")));
-    if (exists $args->{-font}) {
+    if (exists $args->{-initfont}) {
 	$w->{'curr_font'} = $w->fontCreate($w->fontActual
-					   (delete $args->{-font}));
+					   (delete $args->{-initfont}));
     } else {
 	$w->{'curr_font'} = $dialog_font;
     }
+
     my $bold_font       = $w->fontCreate($w->fontActual($dialog_font),
 					 -weight => 'bold');
     my $italic_font     = $w->fontCreate($w->fontActual($dialog_font),
@@ -170,13 +171,17 @@ sub Populate {
        -command => ['Accept', $w ],
       )->grid(-column => 0, -row => 0,
 	      -sticky => 'ew', -padx => 5);
-#     my $applyb = $bf->Button
-#       (-text => 'Apply',
-#        -underline => 0,
-#        -fg => 'yellow4',
-#        -font => $bold_font,
-#       )->grid(-column => 1, -row => 0,
-# 	      -sticky => 'ew', -padx => 5);
+    my $applyb;
+    if ($args->{-applycmd}) {
+	$applyb = $bf->Button
+	  (-text => 'Apply',
+	   -underline => 0,
+	   -fg => 'yellow4',
+	   -font => $bold_font,
+	   -command => \&applycmd, # XXX
+	  )->grid(-column => 1, -row => 0,
+		  -sticky => 'ew', -padx => 5);
+    }
     my $cancelb = $bf->Button
       (-text => 'Cancel',
        -underline => 0,
@@ -210,11 +215,11 @@ sub Populate {
 
     $w->bind('<o>'      => sub { $okb->invoke });
     $w->bind('<Return>' => sub { $okb->invoke });
-#    $w->bind('<a>' => sub { $applyb->invoke });
+    $w->bind('<a>'      => sub { $applyb->invoke }) if $applyb;
     $w->bind('<c>'      => sub { $cancelb->invoke });
     $w->bind('<Escape>' => sub { $cancelb->invoke });
 
-    # XXX ugly workaround...
+    # XXX -subbg: ugly workaround...
     $w->ConfigSpecs
       (-subbg => [ 'PASSIVE', 'subBackground', 'SubBackground', 'white'],
        -nicefont => [ 'PASSIVE', undef, undef, 0],
@@ -226,6 +231,13 @@ sub Populate {
 
     $w->Delegates(DEFAULT => 'family_list');
 
+    # according to the manpage, the fonts are only destroyed if the
+    # last reference to them are destroyed, too
+    # XXX disable for now
+#    $w->fontDelete($dialog_font, 
+#		   $bold_font, $italic_font,
+#		   $underline_font, $overstrike_font);
+
     $w;
 }
 
@@ -233,7 +245,8 @@ sub UpdateFont {
     my($w, %args) = @_;
     $w->fontConfigure($w->{'curr_font'}, %args) if scalar %args;
     $w->Subwidget('sample_canvas')->delete('font');
-    $w->Busy;
+# XXX see below
+#    $w->Busy;
     eval {
 	$w->Subwidget('sample_canvas')->createText
 	  (2, 18,
@@ -242,7 +255,7 @@ sub UpdateFont {
 	   -font => $w->{'curr_font'},
 	   -tags => 'font');
     };
-    $w->Unbusy;
+#    $w->Unbusy;
 }
 
 sub Cancel {
@@ -258,8 +271,15 @@ sub Accept {
 sub Show {
     my($w, @args) = @_;
 
+    $w->transient($w->Parent->toplevel);
+    my $oldFocus = $w->focusCurrent;
+    my $oldGrab = $w->grab('current');
+    my $grabStatus = $oldGrab->grab('status') if ($oldGrab);
+    $w->grab;
+
     $w->InsertFamilies();
     $w->UpdateFont();
+    # XXX ugly...
     $w->Subwidget('family_list')->configure(-bg => $w->cget(-subbg));
     $w->Subwidget('size_list')->configure(-bg => $w->cget(-subbg));
     $w->Subwidget('sample_canvas')->configure(-bg => $w->cget(-subbg));
@@ -268,26 +288,47 @@ sub Show {
     $w->waitVisibility;
     $w->focus;
     $w->waitVariable(\$w->{Selected});
-    $w->withdraw; # destroy? XXX
-    $w->{Selected};
+
+    eval {
+	$oldFocus->focus if $oldFocus;
+    };
+    $w->grab('release');
+    $w->withdraw;
+    if ($oldGrab) {
+	if ($grabStatus eq 'global') {
+	    $oldGrab->grab('-global');
+	} else {
+	    $oldGrab->grab;
+	}
+    }
+
+    if (defined $w->{Selected}) {
+	my $ret = $w->fontCreate($w->font('actual', $w->{Selected}));
+	$ret;
+    } else {
+	undef;
+    }
 }
 
 sub InsertFamilies {
     my $w = shift;
 
-    $w->Busy;
+# XXX Busy ist gefährlich ... anscheinend wird der alte grab nicht
+# richtig gespeichert!
+#    $w->Busy;
     eval {
 	my $nicefont = $w->cget(-nicefont); # XXX name?
 	my $curr_family = $w->fontActual($w->{'curr_font'}, -family);
 	my $famlb = $w->Subwidget('family_list');
 	$famlb->delete('all');
 	my @fam = sort $w->fontFamilies;
+	my $bg = $w->cget(-subbg);
 	foreach my $fam (@fam) {
 	    (my $u_fam = $fam) =~ s/\b(.)/\u$1/g;
 	    my $f_style = $famlb->ItemStyle
 	      ('text', 
 	       ($nicefont ? (-font => "{$fam}") : ()),
-	       -bg => 'white'
+	       -bg => $bg,
 	      );
 	    $famlb->add($fam, -text => $u_fam, -style => $f_style);
 	    if ($curr_family eq $fam) {
@@ -296,7 +337,7 @@ sub InsertFamilies {
 	    }
 	}
     };
-    $w->Unbusy;
+#    $w->Unbusy;
 
 }
 
@@ -321,9 +362,9 @@ Tk::FontDialog implements a font dialog widget. XXX
 
 =over 4
 
-=item -dialogfont
-
 =item -font
+
+=item -initfont
 
 =item -fontsizes
 
@@ -339,13 +380,12 @@ Tk::FontDialog implements a font dialog widget. XXX
   - XXX
   - ConfigSpecs handling is poor
     put at least -font into configspecs
-  - maybe rename -dialogfont to -font and -font to -choosefont?
   - run test, call dialog for 2nd time: immediate change of font?
   - better name for nicefont
 
 =head1 SEE ALSO
 
-L<Tk>
+L<Tk::font|Tk::font>
 
 =head1 AUTHOR
 
