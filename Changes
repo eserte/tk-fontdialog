@@ -1,5 +1,9 @@
 Revision history for Perl extension Tk::FontDialog.
 
+0.09
+	- cancel waitVariable if dialog is destroyed
+	- test now in BATCH mode per default
+
 0.08
 	- fix for Windows (noticed by Sheri)
 
