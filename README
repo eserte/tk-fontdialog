@@ -1,6 +1,7 @@
 Tk::FontDialog Module
 
-Tk::FontDialog is a font chooser for perl/Tk.
+Tk::FontDialog is a font chooser for perl/Tk. Version 800 of Tk is
+required.
 
 To install, type
 
