@@ -31,8 +31,19 @@ $c->createText(0,0,-anchor => 'nw', -text => 'Canvas Text');
 $fd = $top->FontDialog(-nicefont => 0,
 		       -font => $b->cget(-font),
 		       -title => 'Schriftart?',
+		       #-familylabel => '~Schriftfamilie;',
+		       #-sizelabel => '~Größe:',
+		       #-weightlabel => '~Fett',
+		       #-slantlabel  => '~Italic',
+		       #-underlinelabel => '~Unterstrichen',
+		       #-overstrikelabel => '~Durchgestrichen',
+		       #-applylabel => 'Ü~bernehmen',
+		       #-cancellabel => '~Abbruch',
+		       #-altsamplelabel => 'A~lternative',
 		       -applycmd => \&apply_font,
 		       -familylabel => 'Schrift~familie',
+		       -fixedfontsbutton => 1,
+		       -nicefontsbutton => 1,
 		      );
 
 $bf = $top->Frame->pack;
