@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.5 1998/08/25 23:30:44 eserte Exp $
+# $Id: FontDialog.pm,v 1.6 1998/09/16 23:53:04 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998 Slaven Rezic. All rights reserved.
@@ -227,7 +227,7 @@ sub Populate {
        -nicefont => [ 'PASSIVE', undef, undef, 0],
        -sampletext => ['PASSIVE', undef, undef, 
 		       'The Quick Brown Fox Jumps Over The Lazy Dog.'],
-       -title => [ 'METHOD', undef, undef, 'Choose a font'],
+       -title => [ 'METHOD', undef, undef, 'Choose font'],
        DEFAULT   => [ 'family_list' ],
       );
 
@@ -398,13 +398,29 @@ Tk::FontDialog implements a font dialog widget. XXX
 
 =item -font
 
+The dialog font.
+
 =item -initfont
+
+The initial font.
 
 =item -fontsizes
 
+A list of font sizes. The default contains sizes from 0 to 72 points
+(XXX or pixels?).
+
 =item -nicefont
 
+If set, the Nicefonts button is activated. This means that the font
+names are displayed in its font style. This may be slow, if you have
+many fonts or 16 bit fonts (e.g. Asian fonts).
+
 =item -sampletext
+
+The sample text which should contain all letters. The default is "The
+Quick Brown Fox Jumps Over The Lazy Dog." German readers may probably
+use "Franz jagt mit einem verwahrlosten Taxi quer durch Bayern." (pity
+that k and p are missing...).
 
 =back
 
@@ -416,6 +432,7 @@ Tk::FontDialog implements a font dialog widget. XXX
     put at least -font into configspecs
   - run test, call dialog for 2nd time: immediate change of font?
   - better name for nicefont
+  - restrict on charsets and encodings (xlsfonts? X11::Protocol::ListFonts?)
 
 =head1 SEE ALSO
 
