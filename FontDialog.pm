@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.3 1998/08/25 17:51:25 eserte Exp $
+# $Id: FontDialog.pm,v 1.4 1998/08/25 18:10:52 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998 Slaven Rezic. All rights reserved.
@@ -172,13 +172,15 @@ sub Populate {
       )->grid(-column => 0, -row => 0,
 	      -sticky => 'ew', -padx => 5);
     my $applyb;
+    # XXX evtl. in configure erledigne
     if ($args->{-applycmd}) {
+	my $applycmd = delete $args->{-applycmd};
 	$applyb = $bf->Button
 	  (-text => 'Apply',
 	   -underline => 0,
 	   -fg => 'yellow4',
 	   -font => $bold_font,
-	   -command => \&applycmd, # XXX
+	   -command => sub { $applycmd->($w->ReturnFont($w->{'curr_font'})) },
 	  )->grid(-column => 1, -row => 0,
 		  -sticky => 'ew', -padx => 5);
     }
@@ -302,8 +304,13 @@ sub Show {
 	}
     }
 
-    if (defined $w->{Selected}) {
-	my $ret = $w->fontCreate($w->font('actual', $w->{Selected}));
+    $w->ReturnFont($w->{Selected});
+}
+
+sub ReturnFont {
+    my($w, $var) = @_;
+    if (defined $var) {
+	my $ret = $w->fontCreate($w->font('actual', $var));
 	$ret;
     } else {
 	undef;
