@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.8 1998/09/23 22:26:04 eserte Exp $
+# $Id: FontDialog.pm,v 1.9 1999/03/29 18:38:31 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998 Slaven Rezic. All rights reserved.
@@ -23,7 +23,7 @@ use vars qw($VERSION @ISA);
 
 Construct Tk::Widget 'FontDialog';
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 sub Populate {
     my($w, $args) = @_;
@@ -458,9 +458,8 @@ you have many fonts or 16 bit fonts (e.g. Asian fonts).
 =item -sampletext
 
 The sample text which should contain all letters. The default is "The
-Quick Brown Fox Jumps Over The Lazy Dog." German readers may probably
-use "Franz jagt mit einem verwahrlosten Taxi quer durch Bayern." (pity
-that k and p are missing...).
+Quick Brown Fox Jumps Over The Lazy Dog" German readers may probably
+use "Franz jagt im komplett verwahrlosten Taxi quer durch Bayern".
 
 =back
 
