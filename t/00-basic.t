@@ -54,6 +54,12 @@ $bf->Button(-text => 'Not OK',
 	    -command => sub { print "not ok 2\n";
 			      $top->destroy;})->pack(-side => 'left');
 
+if ($ENV{BATCH}) {
+    $top->after(1000, sub {
+	$top->destroy;
+    });
+}
+
 MainLoop;
 
 sub apply_font {
