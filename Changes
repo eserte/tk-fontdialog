@@ -2,6 +2,7 @@ Revision history for Perl extension Tk::FontDialog.
 
 0.07
 	- PREREQ_PM was missing in Makefile.PL
+	- fixed failure when *font was not defined in the option database
 
 0.06
 	- new options: -fixedfont, -fixedfontsbutton, -nicefontsbutton
