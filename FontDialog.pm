@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.10 1999/06/09 01:31:25 eserte Exp $
+# $Id: FontDialog.pm,v 1.11 1999/06/09 23:45:19 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998,1999 Slaven Rezic. All rights reserved.
@@ -80,7 +80,10 @@ sub Populate {
        -scrollbars => 'osoe',
        -selectmode => 'single',
        -bg => 'white',
-       -browsecmd => sub { $w->UpdateFont(-family => $_[0]) },
+       -browsecmd => sub {
+	   my $family = $w->{'familiy_index'}[$_[0]];
+	   $w->UpdateFont(-family => $family)
+       },
       )->pack(-expand => 1, -fill => 'both', -anchor => 'w');
     $w->Advertise('family_list' => $famlb);
 
@@ -325,6 +328,7 @@ sub UpdateFont {
 			   -tags => 'font');
 	}
     };
+    warn $@ if $@;
 #    $w->Unbusy;
 }
 
@@ -391,27 +395,37 @@ sub InsertFamilies {
 # XXX Busy ist gefaehrlich ... anscheinend wird der alte grab nicht
 # richtig gespeichert!
 #    $w->Busy;
+    my $old_cursor = $w->cget(-cursor);
+    $w->configure(-cursor => 'watch');
+    $w->idletasks;
     eval {
+	$w->{'family_index'} = [];
 	my $nicefont = $w->cget(-nicefont); # XXX name?
 	my $curr_family = $w->fontActual($w->{'curr_font'}, -family);
 	my $famlb = $w->Subwidget('family_list');
 	$famlb->delete('all');
 	my @fam = sort $w->fontFamilies;
 	my $bg = $w->cget(-subbg);
+	my $i = 0;
 	foreach my $fam (@fam) {
+	    next if $fam eq '';
 	    (my $u_fam = $fam) =~ s/\b(.)/\u$1/g;
+	    $w->{'familiy_index'}[$i] = $fam;
 	    my $f_style = $famlb->ItemStyle
 	      ('text', 
 	       ($nicefont ? (-font => "{$fam}") : ()),
 	       -bg => $bg,
 	      );
-	    $famlb->add($fam, -text => $u_fam, -style => $f_style);
+	    $famlb->add($i, -text => $u_fam, -style => $f_style);
 	    if ($curr_family eq $fam) {
-		$famlb->selectionSet($fam);
-		$famlb->see($fam);
+		$famlb->selectionSet($i);
+		$famlb->see($i);
 	    }
+	    $i++;
 	}
     };
+    warn $@ if $@;
+    $w->configure(-cursor => $old_cursor);
 #    $w->Unbusy;
 
 }
