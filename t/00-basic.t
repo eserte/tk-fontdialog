@@ -6,12 +6,13 @@
 # Change 1..1 below to 1..last_test_to_print .
 # (It may become useful if the test is moved to ./t subdirectory.)
 
-BEGIN { $| = 1; print "1..2\n"; }
+BEGIN { $| = 1; print "1..3\n"; }
 END {print "not ok 1\n" unless $loaded;}
 use Tk;
 use Tk::FontDialog;
 $loaded = 1;
-print "ok 1\n";
+my $ok = 1;
+print "ok ". $ok++ . "\n";
 
 $top=new MainWindow;
 
@@ -46,12 +47,19 @@ $fd = $top->FontDialog(-nicefont => 0,
 		       -nicefontsbutton => 1,
 		      );
 
+eval {
+    my $fd2 = $top->FontDialog;
+    $fd2->Show('-_testhack' => 1);
+};
+if ($@) { print "not " } print "ok " . $ok++ . "\n";
+
+
 $bf = $top->Frame->pack;
 $bf->Button(-text => 'OK',
-	    -command => sub { print "ok 2\n";
+	    -command => sub { print "ok $ok\n";
 			      $top->destroy;})->pack(-side => 'left');
 $bf->Button(-text => 'Not OK',
-	    -command => sub { print "not ok 2\n";
+	    -command => sub { print "not ok $ok\n";
 			      $top->destroy;})->pack(-side => 'left');
 
 if ($ENV{BATCH}) {
