@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.16 2002/10/23 08:56:45 eserte Exp $
+# $Id: FontDialog.pm,v 1.17 2002/10/23 09:11:18 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998,1999 Slaven Rezic. All rights reserved.
@@ -442,14 +442,14 @@ sub InsertFamilies {
 	my $i = 0;
 	foreach my $fam (@fam) {
 	    next if $fam eq '';
-	    next if $fixedfont 
+	    next if $fixedfont
 	      and not $w->fontMetrics($w->Font(-family => $fam), '-fixed');
 	    (my $u_fam = $fam) =~ s/\b(.)/\u$1/g;
 	    $w->{'family_index'}[$i] = $fam;
 	    my $f_style = $famlb->ItemStyle
-	      ('text', 
+	      ('text',
 	       ($nicefont ? (-font => "{$fam}") : ()),
-	       -bg => $bg,
+	       -background => $bg,
 	      );
 	    $famlb->add($i, -text => $u_fam, -style => $f_style);
 	    if ($curr_family eq $fam) {
