@@ -1,5 +1,10 @@
 Revision history for Perl extension Tk::FontDialog.
 
+0.04
+	- internationalization
+	- solved problems with empty family names and dots in family names
+	- cursor changes to watch for InsertFamilies
+
 0.03
 	- some minor fixes
 
