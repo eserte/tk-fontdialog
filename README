@@ -7,9 +7,10 @@ To install, type
 
 	$ perl Makefile.PL
 	$ make
+	$ make test
 	$ make install
 
-"make test" starts a test window and serves as an example script,
-since there is no pod yet.
+"env BATCH=0 make test" starts a test window and serves as an example
+script.
 
-Send bug reports, comments and suggestions to slaven.rezic@berlin.de
+Send bug reports, comments and suggestions to slaven@rezic.de
