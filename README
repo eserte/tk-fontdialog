@@ -1,0 +1,14 @@
+Tk::FontDialog Module
+
+Tk::FontDialog is a font chooser for perl/Tk.
+
+To install, type
+
+	$ perl Makefile.PL
+	$ make
+	$ make install
+
+"make test" starts a test window and serves as an example script,
+since there is no pod yet.
+
+Send bug reports, comments and suggestions to eserte@cs.tu-berlin.de
