@@ -1,5 +1,8 @@
 Revision history for Perl extension Tk::FontDialog.
 
+0.03
+	- some minor fixes
+
 0.01  Sun Aug 23 02:21:15 1998
 	- original version; created by h2xs 1.18
 
