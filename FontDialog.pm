@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.4 1998/08/25 18:10:52 eserte Exp $
+# $Id: FontDialog.pm,v 1.5 1998/08/25 23:30:44 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998 Slaven Rezic. All rights reserved.
@@ -23,7 +23,7 @@ use vars qw($VERSION @ISA);
 
 Construct Tk::Widget 'FontDialog';
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 sub Populate {
     my($w, $args) = @_;
@@ -346,6 +346,33 @@ sub InsertFamilies {
     };
 #    $w->Unbusy;
 
+}
+
+# put some dirt into Tk::Widget...
+package Tk::Widget;
+
+# XXX Refont Canvases?
+sub RefontTree {
+    my ($w, %args) = @_;
+    my $dbOption;
+    my $value;
+    my $font = $args{-font} or die "No font specified";
+    eval { local $SIG{'__DIE__'}; $value = $w->cget(-font) };
+    if (defined $value) {
+	$w->configure(-font => $font);
+    }
+    if ($w->isa('Tk::Canvas') and $args{-canvas}) {
+	foreach my $item ($w->find('all')) {
+	    eval { local $SIG{'__DIE__'};
+		   $value = $w->itemcget($item, -font) };
+	    if (defined $value) {
+		$w->itemconfigure($item, -font => $font);
+	    }
+	}
+    }
+    foreach my $child ($w->children) {
+	$child->RefontTree(%args);
+    }
 }
 
 1;
