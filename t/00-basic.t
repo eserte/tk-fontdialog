@@ -10,6 +10,11 @@ BEGIN { $| = 1; print "1..3\n"; }
 END {print "not ok 1\n" unless $loaded;}
 use Tk;
 use Tk::FontDialog;
+
+use if $] >= 5.008, charnames => ':full'; # XXX for alternative sample text
+
+if (!defined $ENV{BATCH}) { $ENV{BATCH} = 1 }
+
 $loaded = 1;
 my $ok = 1;
 print "ok ". $ok++ . "\n";
@@ -30,7 +35,7 @@ $c = $f2->Canvas(-width => 100, -height => 30)->pack;
 $c->createText(0,0,-anchor => 'nw', -text => 'Canvas Text');
 
 $fd = $top->FontDialog(-nicefont => 0,
-		       -font => $b->cget(-font),
+		       #-font => $b->cget(-font),
 		       -title => 'Schriftart?',
 		       #-familylabel => '~Schriftfamilie;',
 		       #-sizelabel => '~Größe:',
@@ -45,6 +50,7 @@ $fd = $top->FontDialog(-nicefont => 0,
 		       -familylabel => 'Schrift~familie',
 		       -fixedfontsbutton => 1,
 		       -nicefontsbutton => 1,
+		       ($Tk::VERSION >= 804 ? (-sampletext => "The quick brown fox jumps over the lazy dog.\nUnicode: Euro=\N{EURO SIGN}, C with acute=\N{LATIN SMALL LETTER C WITH ACUTE}, cyrillic sh=\x{0428}") : ()),
 		      );
 
 eval {
