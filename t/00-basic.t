@@ -17,13 +17,20 @@ $top=new MainWindow;
 
 my $fd;
 $b = $top->Button(-text => 'Choose Font',
-	     -command => sub {
-		 $font = $fd->Show;
-		 if (defined $font) {
-		     $b->configure(-font => $font);
-		 }
-	     })->pack;
+		  -command => sub {
+		      $font = $fd->Show;
+		      apply_font($font);
+		  })->pack;
 $fd = $top->FontDialog(-nicefont => 0,
 		       -font => $b->cget(-font),
+		       -title => 'Schriftart?',
+		       -applycmd => \&apply_font,
 		      );
 MainLoop;
+
+sub apply_font {
+    my $font = shift;
+    if (defined $font) {
+	$b->configure(-font => $font);
+    }
+}
