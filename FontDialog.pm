@@ -2,15 +2,15 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.17 2002/10/23 09:11:18 eserte Exp $
+# $Id: FontDialog.pm,v 1.18 2003/10/22 21:22:16 eserte Exp $
 # Author: Slaven Rezic
 #
-# Copyright (C) 1998,1999 Slaven Rezic. All rights reserved.
+# Copyright (C) 1998,1999,2003 Slaven Rezic. All rights reserved.
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
 #
-# Mail: eserte@cs.tu-berlin.de
-# WWW:  http://user.cs.tu-berlin.de/~eserte/
+# Mail: slaven@rezic.de
+# WWW:  http://www.rezic.de/eserte/
 #
 
 package Tk::FontDialog;
@@ -23,7 +23,7 @@ use vars qw($VERSION @ISA);
 
 Construct Tk::Widget 'FontDialog';
 
-$VERSION = '0.07';
+$VERSION = '0.08';
 
 sub Populate {
     my($w, $args) = @_;
@@ -43,8 +43,8 @@ sub Populate {
     my $font_name = $w->optionGet("font", "*");
     if (!defined $font_name) {
 	my $l = $w->Label;
-	$dialog_font = $l->cget(-font);
-	warn $dialog_font;
+	$dialog_font = $w->fontCreate($w->fontActual($l->cget(-font)));
+	$l->destroy;
     } else {
 	$dialog_font = $w->fontCreate($w->fontActual($font_name));
     }
@@ -696,13 +696,13 @@ L<Tk::font|Tk::font>
 
 =head1 AUTHOR
 
-Slaven Rezic <eserte@cs.tu-berlin.de>
+Slaven Rezic <slaven@rezic.de>
 
 Suggestions by Michael Houghton <herveus@Radix.Net>.
 
 =head1 COPYRIGHT
 
-Copyright (c) 1998,1999 Slaven Rezic. All rights reserved.
+Copyright (c) 1998,1999,2003 Slaven Rezic. All rights reserved.
 This module is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
