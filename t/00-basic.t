@@ -11,7 +11,14 @@ END {print "not ok 1\n" unless $loaded;}
 use Tk;
 use Tk::FontDialog;
 
-use if $] >= 5.008, charnames => ':full'; # XXX for alternative sample text
+my $sampletext;
+BEGIN {
+    eval q{
+        use charnames ':full';
+        $sampletext = "The quick brown fox jumps over the lazy dog.\nUnicode: Euro=\N{EURO SIGN}, C with acute=\N{LATIN SMALL LETTER C WITH ACUTE}, cyrillic sh=\x{0428}";
+    };
+    #warn $@;
+}
 
 if (!defined $ENV{BATCH}) { $ENV{BATCH} = 1 }
 
@@ -50,7 +57,7 @@ $fd = $top->FontDialog(-nicefont => 0,
 		       -familylabel => 'Schrift~familie',
 		       -fixedfontsbutton => 1,
 		       -nicefontsbutton => 1,
-		       ($Tk::VERSION >= 804 ? (-sampletext => "The quick brown fox jumps over the lazy dog.\nUnicode: Euro=\N{EURO SIGN}, C with acute=\N{LATIN SMALL LETTER C WITH ACUTE}, cyrillic sh=\x{0428}") : ()),
+		       ($Tk::VERSION >= 804 && $sampletext ? (-sampletext => $sampletext) : ()),
 		      );
 
 eval {
