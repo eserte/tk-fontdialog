@@ -32,6 +32,7 @@ $fd = $top->FontDialog(-nicefont => 0,
 		       -font => $b->cget(-font),
 		       -title => 'Schriftart?',
 		       -applycmd => \&apply_font,
+		       -familylabel => 'Schrift~familie',
 		      );
 
 $bf = $top->Frame->pack;
