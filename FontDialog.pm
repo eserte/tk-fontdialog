@@ -2,10 +2,10 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.18 2003/10/22 21:22:16 eserte Exp $
+# $Id: FontDialog.pm,v 1.19 2004/03/15 21:27:03 eserte Exp $
 # Author: Slaven Rezic
 #
-# Copyright (C) 1998,1999,2003 Slaven Rezic. All rights reserved.
+# Copyright (C) 1998,1999,2003,2004 Slaven Rezic. All rights reserved.
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
 #
@@ -23,7 +23,7 @@ use vars qw($VERSION @ISA);
 
 Construct Tk::Widget 'FontDialog';
 
-$VERSION = '0.08';
+$VERSION = '0.09';
 
 sub Populate {
     my($w, $args) = @_;
@@ -393,7 +393,10 @@ sub Show {
     # XXX won't work with 800.015?
     #$w->waitVisibility;
     $w->focus;
+    $w->OnDestroy(sub { $w->Cancel });
     $w->waitVariable(\$w->{Selected}) unless $test_hack;
+
+    return if !Tk::Exists($w); # probably MainWindow closed
 
     eval {
 	$oldFocus->focus if $oldFocus;
