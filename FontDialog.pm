@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.12 1999/09/23 19:51:56 eserte Exp $
+# $Id: FontDialog.pm,v 1.13 1999/09/23 20:32:59 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998,1999 Slaven Rezic. All rights reserved.
@@ -23,14 +23,13 @@ use vars qw($VERSION @ISA);
 
 Construct Tk::Widget 'FontDialog';
 
-$VERSION = '0.05';
+$VERSION = '0.06';
 
 sub Populate {
     my($w, $args) = @_;
 
     require Tk::HList;
     require Tk::ItemStyle;
-    require Tk::Adjuster;
     
     $w->SUPER::Populate($args);
     $w->protocol('WM_DELETE_WINDOW' => ['Cancel', $w ]);
@@ -58,9 +57,8 @@ sub Populate {
     my $overstrike_font = $w->fontCreate($w->fontActual($dialog_font),
 					 -overstrike => 1);
 
-    my $f1     = $w->Frame->pack#Adjust XXX
-      (-expand => 1, -fill => 'both',
-				       -padx => 2, -pady => 2);
+    my $f1     = $w->Frame->pack(-expand => 1, -fill => 'both',
+				 -padx => 2, -pady => 2);
     my $ffam   = $f1->Frame->pack(-expand => 1, -fill => 'both',
 				  -side => 'left');
     my $fsize  = $f1->Frame->pack(-expand => 1, -fill => 'both',
@@ -81,7 +79,7 @@ sub Populate {
        -selectmode => 'single',
        -bg => 'white',
        -browsecmd => sub {
-	   my $family = $w->{'familiy_index'}[$_[0]];
+	   my $family = $w->{'family_index'}[$_[0]];
 	   $w->UpdateFont(-family => $family)
        },
       )->pack(-expand => 1, -fill => 'both', -anchor => 'w');
@@ -190,7 +188,7 @@ sub Populate {
        -fg => 'green4',
        -font => $bold_font,
        -command => ['Accept', $w ],
-      )->grid(-column => 0, -row => 0,
+      )->grid(-column => 0, -row => 0, -rowspan => 2,
 	      -sticky => 'ew', -padx => 5);
 
     my(%apply_res) = _get_label(delete $args->{'-applylabel'}
@@ -204,7 +202,7 @@ sub Populate {
 	   -fg => 'yellow4',
 	   -font => $bold_font,
 	   -command => sub { $applycmd->($w->ReturnFont($w->{'curr_font'})) },
-	  )->grid(-column => 1, -row => 0,
+	  )->grid(-column => 1, -row => 0, -rowspan => 2,
 		  -sticky => 'ew', -padx => 5);
     }
 
@@ -215,7 +213,7 @@ sub Populate {
        -fg => 'red',
        -font => $bold_font,
        -command => ['Cancel', $w ],
-      )->grid(-column => 2, -row => 0,
+      )->grid(-column => 2, -row => 0, -rowspan => 2,
 	      -sticky => 'ew', -padx => 5);
     $bf->grid('columnconfigure', 3, -weight => 1.0);
 
@@ -226,16 +224,33 @@ sub Populate {
        -variable => \$w->{'alt_sample'},
        -command => sub { $w->UpdateFont; },
       )->grid(-column => 4, -row => 0,
-	      -sticky => 'ew', -padx => 5);
+	      -sticky => 'w', -padx => 5);
 
-    my(%nicefonts_res) = _get_label(delete $args->{'-nicefontslabel'}
+    my(%nicefonts_res, $nicecb);
+    if (!exists $args->{'-nicefontsbutton'} || $args->{'-nicefontsbutton'}) {
+	%nicefonts_res = _get_label(delete $args->{'-nicefontslabel'}
 				    || "~Nicefonts");
-    my $nicecb = $bf->Checkbutton
-      (@{$nicefonts_res{'args'}},
-       -variable => \$w->{Configure}{-nicefont},
-       -command => sub { $w->InsertFamilies; },
-      )->grid(-column => 5, -row => 0,
-	      -sticky => 'ew', -padx => 5);
+	$nicecb = $bf->Checkbutton
+	  (@{$nicefonts_res{'args'}},
+	   -variable => \$w->{Configure}{-nicefont},
+	   -command => sub { $w->InsertFamilies; },
+	  )->grid(-column => 4, -row => 1,
+		  -sticky => 'w', -padx => 5);
+    }
+    delete $args->{'-nicefontsbutton'};
+    
+    my(%fixedfonts_res, $fixedcb);
+    if (!exists $args->{'-fixedfontsbutton'} || $args->{'-fixedfontsbutton'}) {
+	%fixedfonts_res = _get_label(delete $args->{'-fixedfontslabel'}
+				     || "Fi~xed Only");
+	$fixedcb = $bf->Checkbutton
+	  (@{$fixedfonts_res{'args'}},
+	   -variable => \$w->{Configure}{-fixedfont},
+	   -command => sub { $w->InsertFamilies; },
+	  )->grid(-column => 5, -row => 0,
+		  -sticky => 'w', -padx => 5);
+    }
+    delete $args->{'-fixedfontsbutton'};
     
     $w->grid('columnconfigure', 0, -minsize => 4);
     $w->grid('columnconfigure', 4, -minsize => 4);
@@ -268,11 +283,14 @@ sub Populate {
       if $altsample_res{'key'};
     $w->bind("<$nicefonts_res{'key'}>" => sub { $nicecb->invoke })
       if $nicefonts_res{'key'};
+    $w->bind("<$fixedfonts_res{'key'}>" => sub { $fixedcb->invoke })
+      if $fixedfonts_res{'key'};
 
     # XXX -subbg: ugly workaround...
     $w->ConfigSpecs
       (-subbg       => [ 'PASSIVE', 'subBackground', 'SubBackground', 'white'],
        -nicefont    => [ 'PASSIVE', undef, undef, 0],
+       -fixedfont   => [ 'PASSIVE', undef, undef, 0],
        -sampletext  => [ 'PASSIVE', undef, undef, 
 		         'The Quick Brown Fox Jumps Over The Lazy Dog.'],
        -title       => [ 'METHOD', undef, undef, 'Choose font'],
@@ -282,7 +300,7 @@ sub Populate {
     $w->Delegates(DEFAULT => 'family_list');
 
     # according to the manpage, the fonts are only destroyed if the
-    # last reference to them are destroyed, too
+    # last reference to them is also destroyed
     # XXX disable for now
 #    $w->fontDelete($dialog_font, 
 #		   $bold_font, $italic_font,
@@ -351,7 +369,6 @@ sub Show {
     my $grabStatus = $oldGrab->grab('status') if ($oldGrab);
     $w->grab;
 
-#    $w->InsertX11Families();
     $w->InsertFamilies();
     $w->UpdateFont();
     # XXX ugly...
@@ -403,6 +420,7 @@ sub InsertFamilies {
     eval {
 	$w->{'family_index'} = [];
 	my $nicefont = $w->cget(-nicefont); # XXX name?
+	my $fixedfont = $w->cget(-fixedfont);
 	my $curr_family = $w->fontActual($w->{'curr_font'}, -family);
 	my $famlb = $w->Subwidget('family_list');
 	$famlb->delete('all');
@@ -411,8 +429,10 @@ sub InsertFamilies {
 	my $i = 0;
 	foreach my $fam (@fam) {
 	    next if $fam eq '';
+	    next if $fixedfont 
+	      and not $w->fontMetrics($w->Font(-family => $fam), '-fixed');
 	    (my $u_fam = $fam) =~ s/\b(.)/\u$1/g;
-	    $w->{'familiy_index'}[$i] = $fam;
+	    $w->{'family_index'}[$i] = $fam;
 	    my $f_style = $famlb->ItemStyle
 	      ('text', 
 	       ($nicefont ? (-font => "{$fam}") : ()),
@@ -430,52 +450,6 @@ sub InsertFamilies {
     $w->configure(-cursor => $old_cursor);
 #    $w->Unbusy;
 
-}
-
-# warn geht nicht... warum will ich das überhaupt? kann ich Tk::X11Font
-# verwenden?
-sub InsertX11Families {
-    my $w = shift;
-    require Tk::Xlib;
-    my $old_cursor = $w->cget(-cursor);
-    $w->configure(-cursor => 'watch');
-    $w->idletasks;
-    eval {
-	$w->{'family_index'} = [];
-	my $nicefont = $w->cget(-nicefont); # XXX name?
-	my $curr_family = $w->fontActual($w->{'curr_font'}, -family);
-	my $famlb = $w->Subwidget('family_list');
-	$famlb->delete('all');
-	my @try_fam = $w->Display->XListFonts("*", 10000);
-	my %try_fam;
-	foreach (@try_fam) {
-	    if (/^-([^-]+-[^-]+)/) { 
-		$try_fam{$1}++;
-	    }
-	}
-	my @fam = sort keys %try_fam;
-	my $bg = $w->cget(-subbg);
-	my $i = 0;
-	foreach my $fam (@fam) {
-	    next if $fam eq '';
-	    (my $u_fam = $fam) =~ s/\b(.)/\u$1/g;
-	    $w->{'familiy_index'}[$i] = $fam;
-	    my $f_style = $famlb->ItemStyle
-	      ('text', 
-	       ($nicefont ? (-font => "{$fam}") : ()),
-	       -bg => $bg,
-	      );
-	    $famlb->add($i, -text => $u_fam, -style => $f_style);
-	    if ($curr_family eq $fam) {
-		$famlb->selectionSet($i);
-		$famlb->see($i);
-	    }
-	    $i++;
-	}
-    };
-    warn $@ if $@;
-    $w->configure(-cursor => $old_cursor);
-    
 }
 
 # get position of the tilde character and delete it
@@ -558,9 +532,22 @@ A list of font sizes. The default contains sizes from 0 to 72 points
 
 =item -nicefont
 
-If set, the Nicefonts button is activated. This means that the font
-names are displayed in its font style. This may be slow, especially if
-you have many fonts or 16 bit fonts (e.g. Asian fonts).
+If set, font names are displayed in its font style. This may be slow,
+especially if you have many fonts or 16 bit fonts (e.g. Asian fonts).
+
+=item -nicefontsbutton
+
+If set to false, then the "Nice fonts" button is not displayed.
+
+=item -fixedfont
+
+If set, proportional font families are not listed, leaving only the fixed
+fonts. This is slow, as each font must be checked to see if it is fixed
+or proportional.
+
+=item -fixedfontsbutton
+
+If set to false, then the "Fixed fonts" button is not displayed.
 
 =item -sampletext
 
@@ -601,6 +588,8 @@ setting:
 
 =item -nicefontslabel (Nicefonts)
 
+=item -fixedfontslabel (Fixed Only)
+
 =back
 
 =head1 BUGS/TODO
@@ -621,6 +610,8 @@ L<Tk::font|Tk::font>
 =head1 AUTHOR
 
 Slaven Rezic <eserte@cs.tu-berlin.de>
+
+Suggestions by Michael Houghton <herveus@Radix.Net>.
 
 =head1 COPYRIGHT
 
