@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.14 1999/12/15 00:03:31 eserte Exp $
+# $Id: FontDialog.pm,v 1.15 2001/01/19 00:28:09 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998,1999 Slaven Rezic. All rights reserved.
@@ -30,7 +30,7 @@ sub Populate {
 
     require Tk::HList;
     require Tk::ItemStyle;
-    
+
     $w->SUPER::Populate($args);
     $w->protocol('WM_DELETE_WINDOW' => ['Cancel', $w ]);
 
@@ -66,7 +66,7 @@ sub Populate {
     my $fstyle = $f1->Frame->pack(-expand => 1, -fill => 'both',
 				  -side => 'left');
 
-    my(%family_res) = _get_label(delete $args->{'-familylabel'} 
+    my(%family_res) = _get_label(delete $args->{'-familylabel'}
 				 || '~Family:');
     $ffam->Label
       (@{$family_res{'args'}},
@@ -240,7 +240,7 @@ sub Populate {
 		  -sticky => 'w', -padx => 5);
     }
     delete $args->{'-nicefontsbutton'};
-    
+
     my(%fixedfonts_res, $fixedcb);
     if (!exists $args->{'-fixedfontsbutton'} || $args->{'-fixedfontsbutton'}) {
 	%fixedfonts_res = _get_label(delete $args->{'-fixedfontslabel'}
@@ -253,7 +253,7 @@ sub Populate {
 		  -sticky => 'w', -padx => 5);
     }
     delete $args->{'-fixedfontsbutton'};
-    
+
     $w->grid('columnconfigure', 0, -minsize => 4);
     $w->grid('columnconfigure', 4, -minsize => 4);
     $w->grid('rowconfigure',    0, -minsize => 4);
@@ -365,7 +365,9 @@ sub Accept {
 }
 
 sub Show {
-    my($w, @args) = @_;
+    my($w, %args) = @_;
+
+    my $test_hack = delete $args{'-_testhack'};
 
     $w->transient($w->Parent->toplevel);
     my $oldFocus = $w->focusCurrent;
@@ -380,11 +382,11 @@ sub Show {
     $w->Subwidget('size_list')->configure(-bg => $w->cget(-subbg));
     $w->Subwidget('sample_canvas')->configure(-bg => $w->cget(-subbg));
 
-    $w->Popup(@args); 
+    $w->Popup(%args);
     # XXX won't work with 800.015?
     #$w->waitVisibility;
     $w->focus;
-    $w->waitVariable(\$w->{Selected});
+    $w->waitVariable(\$w->{Selected}) unless $test_hack;
 
     eval {
 	$oldFocus->focus if $oldFocus;
@@ -663,6 +665,14 @@ setting:
 =item -customsizetitle (Choose font size)
 
 =back
+
+=head1 CAVEAT
+
+Note that font names with whitespace like "New century schoolbook" or
+"MS Sans Serif" can cause problems when using in a -font option. The
+solution is to put the names in Tcl-like braces, like
+
+    -font => "{New century schoolbook} 10"
 
 =head1 BUGS/TODO
 
