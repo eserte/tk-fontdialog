@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.13 1999/09/23 20:32:59 eserte Exp $
+# $Id: FontDialog.pm,v 1.14 1999/12/15 00:03:31 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998,1999 Slaven Rezic. All rights reserved.
@@ -23,7 +23,7 @@ use vars qw($VERSION @ISA);
 
 Construct Tk::Widget 'FontDialog';
 
-$VERSION = '0.06';
+$VERSION = '0.07';
 
 sub Populate {
     my($w, $args) = @_;
@@ -101,6 +101,7 @@ sub Populate {
        -browsecmd => sub { $w->UpdateFont(-size => $_[0]) },
       )->pack(-expand => 1, -fill => 'both', -anchor => 'w');
     $w->Advertise('size_list' => $sizelb);
+    $sizelb->bind("<3>" => [ $w, '_custom_size' ]);
 
     my @fontsizes;
     if (exists $args->{-fontsizes}) {
@@ -114,6 +115,7 @@ sub Populate {
 	$sizelb->add($size, -text => $size);
 	if ($size == $curr_size) {
 	    $sizelb->selectionSet($size);
+	    $sizelb->anchorSet($size);
 	    $sizelb->see($size);
 	}
     }
@@ -288,12 +290,14 @@ sub Populate {
 
     # XXX -subbg: ugly workaround...
     $w->ConfigSpecs
-      (-subbg       => [ 'PASSIVE', 'subBackground', 'SubBackground', 'white'],
-       -nicefont    => [ 'PASSIVE', undef, undef, 0],
-       -fixedfont   => [ 'PASSIVE', undef, undef, 0],
-       -sampletext  => [ 'PASSIVE', undef, undef, 
-		         'The Quick Brown Fox Jumps Over The Lazy Dog.'],
-       -title       => [ 'METHOD', undef, undef, 'Choose font'],
+      (-subbg           => [ 'PASSIVE', 'subBackground', 'SubBackground',
+                             'white'],
+       -nicefont        => [ 'PASSIVE', undef, undef, 0],
+       -fixedfont       => [ 'PASSIVE', undef, undef, 0],
+       -sampletext      => [ 'PASSIVE', undef, undef, 
+		             'The Quick Brown Fox Jumps Over The Lazy Dog.'],
+       -title           => [ 'METHOD', undef, undef, 'Choose font'],
+       -customsizetitle => [ 'PASSIVE', undef, undef, 'Choose font size'],
        DEFAULT   => [ 'family_list' ],
       );
 
@@ -441,6 +445,7 @@ sub InsertFamilies {
 	    $famlb->add($i, -text => $u_fam, -style => $f_style);
 	    if ($curr_family eq $fam) {
 		$famlb->selectionSet($i);
+		$famlb->anchorSet($i);
 		$famlb->see($i);
 	    }
 	    $i++;
@@ -466,6 +471,54 @@ sub _get_label {
 	@{$res{'args'}} = (-text => $s);
     }
     %res;
+}
+
+sub _custom_size {
+    my($w) = @_;
+    my $t = $w->Toplevel;
+    my $label = $w->cget(-customsizetitle);
+    $t->title($label);
+
+    my $sizelb = $w->Subwidget("size_list");
+    my $fontsize = 10;
+    if (defined $sizelb->info("selection")) {
+	$fontsize = $sizelb->entrycget($sizelb->info("selection"), -text);
+    }
+
+    my $f1 = $t->Frame->pack;
+    $f1->Label(-text => $label)->pack(-side => 'left');
+    my $e = $f1->Entry(-width => 4,
+		       -textvariable => \$fontsize)->pack(-side => "left");
+    $e->focus;
+    $e->selectionRange(0,'end');
+    $e->icursor('end');
+
+    my $f = $t->Frame->pack;
+    my $waitvar = 0;
+    my $ok = $f->Button
+      (-text => "Ok",
+       -command => sub {
+	   $w->UpdateFont(-size => $fontsize);
+	   $sizelb->selectionClear;
+	   $sizelb->anchorClear;
+	   foreach ($sizelb->info("children")) {
+	       if ($sizelb->entrycget($_, -text) eq $fontsize) {
+		   $sizelb->selectionSet($_);
+		   $sizelb->anchorSet($_);
+		   $sizelb->see($_);
+		   last;
+	       }
+	   }
+	   $waitvar = 1;
+       })->pack(-side => "left");
+    $f->Button(-text => "Cancel",
+	       -command => sub { $waitvar = -1 })->pack(-side => "left");
+
+    $e->bind("<Return>" => sub { $ok->invoke });
+
+    $t->Popup(-popover => "cursor");
+    $t->waitVariable(\$waitvar);
+    $t->destroy;
 }
 
 # put some dirt into Tk::Widget...
@@ -511,7 +564,22 @@ Tk::FontDialog - a font dialog widget for perl/Tk
 
 =head1 DESCRIPTION
 
-Tk::FontDialog implements a font dialog widget. XXX
+Tk::FontDialog implements a font dialog widget.
+
+In the Family and Size listboxes, the font family and font size can be
+specified. The checkbuttons on the right turn on bold, italic,
+underlined and overstriked variants of the chosen font. A sample of
+the font is shown in the middle area.
+
+With the "Alt sample" checkbutton, it is possible to show all
+characters in the charset instead of the default text. "Fixed only"
+restricts the font family list to fixed fonts only. If the "Nicefonts"
+checkbutton is set, then the font names in the listbox are displayed
+in the corresponding font. Note that this option can be slow if a lot
+of fonts are installed or for 16 bit fonts.
+
+A click with the right button in the font size listbox pops up a
+window to enter arbitrary font sizes.
 
 =head1 WIDGET-SPECIFIC OPTIONS
 
@@ -590,12 +658,14 @@ setting:
 
 =item -fixedfontslabel (Fixed Only)
 
+=item -title (Choose font)
+
+=item -customsizetitle (Choose font size)
+
 =back
 
 =head1 BUGS/TODO
 
-  - better POD
-  - XXX
   - ConfigSpecs handling is poor
     put at least -font into configspecs
   - run test, call dialog for 2nd time: immediate change of font?
