@@ -4,4 +4,6 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     'NAME'	=> 'Tk::FontDialog',
     'VERSION_FROM' => 'FontDialog.pm', # finds $VERSION
+    'dist'      => {'COMPRESS'=>'gzip -9f', 'SUFFIX' => '.gz',
+                    'POSTOP'=>'-$(CHMOD) 644 $(DISTVNAME).tar$(SUFFIX)'},
 );
