@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.7 1998/09/17 00:28:36 eserte Exp $
+# $Id: FontDialog.pm,v 1.8 1998/09/23 22:26:04 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998 Slaven Rezic. All rights reserved.
@@ -30,6 +30,7 @@ sub Populate {
 
     require Tk::HList;
     require Tk::ItemStyle;
+    require Tk::Adjuster;
     
     $w->SUPER::Populate($args);
     $w->protocol('WM_DELETE_WINDOW' => ['Cancel', $w ]);
@@ -57,8 +58,9 @@ sub Populate {
     my $overstrike_font = $w->fontCreate($w->fontActual($dialog_font),
 					 -overstrike => 1);
 
-    my $f1     = $w->Frame->pack(-expand => 1, -fill => 'both',
-				 -padx => 2, -pady => 2);
+    my $f1     = $w->Frame->pack#Adjust XXX
+      (-expand => 1, -fill => 'both',
+				       -padx => 2, -pady => 2);
     my $ffam   = $f1->Frame->pack(-expand => 1, -fill => 'both',
 				  -side => 'left');
     my $fsize  = $f1->Frame->pack(-expand => 1, -fill => 'both',
@@ -200,12 +202,19 @@ sub Populate {
 	      -sticky => 'ew', -padx => 5);
     $bf->grid('columnconfigure', 3, -weight => 1.0);
 
+    my $altcb = $bf->Checkbutton
+      (-text => 'Alt sample',
+       -underline => 1,
+       -variable => \$w->{'alt_sample'},
+       -command => sub { $w->UpdateFont; },
+      )->grid(-column => 4, -row => 0,
+	      -sticky => 'ew', -padx => 5);
     my $nicecb = $bf->Checkbutton
       (-text => 'Nicefonts',
        -underline => 0,
        -variable => \$w->{Configure}{-nicefont},
        -command => sub { $w->InsertFamilies; },
-      )->grid(-column => 4, -row => 0,
+      )->grid(-column => 5, -row => 0,
 	      -sticky => 'ew', -padx => 5);
     
     $w->grid('columnconfigure', 0, -minsize => 4);
@@ -216,16 +225,18 @@ sub Populate {
     $w->bind('<f>' => sub { $famlb->focus });
     $w->bind('<s>' => sub { $sizelb->focus });
 
-    $w->bind('<b>' => sub { $wcb->focus });
-    $w->bind('<i>' => sub { $scb->focus });
-    $w->bind('<u>' => sub { $ucb->focus });
-    $w->bind('<v>' => sub { $ocb->focus });
+    $w->bind('<b>' => sub { $wcb->invoke });
+    $w->bind('<i>' => sub { $scb->invoke });
+    $w->bind('<u>' => sub { $ucb->invoke });
+    $w->bind('<v>' => sub { $ocb->invoke });
 
     $w->bind('<o>'      => sub { $okb->invoke });
     $w->bind('<Return>' => sub { $okb->invoke });
     $w->bind('<a>'      => sub { $applyb->invoke }) if $applyb;
     $w->bind('<c>'      => sub { $cancelb->invoke });
     $w->bind('<Escape>' => sub { $cancelb->invoke });
+    $w->bind('<l>'      => sub { $altcb->invoke });
+    $w->bind('<n>'      => sub { $nicecb->invoke });
 
     # XXX -subbg: ugly workaround...
     $w->ConfigSpecs
@@ -257,11 +268,34 @@ sub UpdateFont {
 # XXX see below
 #    $w->Busy;
     eval {
-	$c->createText(4, 4,
-		       -anchor => 'nw',
-		       -text => $w->cget(-sampletext),
-		       -font => $w->{'curr_font'},
-		       -tags => 'font');
+	my $sampletext;
+	my $ch_width  = $w->fontMeasure($w->{'curr_font'}, 'M');
+	my $ch_height = $w->fontMetrics($w->{'curr_font'}, -linespace);
+	if ($w->{'alt_sample'}) {
+	    my $x;
+	    my $y = 4;
+	    for(my $i = 32; $i < 256; $i+=16) {
+		$x = 4;
+		for my $j (0 .. 15) {
+		    next if $i+$j == 127;
+		    my $ch = chr($i + $j);
+		    unless ($ch eq "\r" || $ch eq "\n") {
+			$c->createText($x, $y, -anchor => 'nw',
+				       -text => $ch,
+				       -font => $w->{'curr_font'},
+				       -tags => 'font');
+		    }
+		    $x += $ch_width + 4;
+		}
+		$y += $ch_height;
+	    }
+	} else {
+	    $c->createText(4, 4,
+			   -anchor => 'nw',
+			   -text => $w->cget(-sampletext),
+			   -font => $w->{'curr_font'},
+			   -tags => 'font');
+	}
     };
 #    $w->Unbusy;
 }
