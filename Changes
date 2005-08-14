@@ -1,5 +1,11 @@
 Revision history for Perl extension Tk::FontDialog.
 
+0.11
+	- introduced FontGetPoints, needed for Tk804.xxx (font sizes
+	  are now in pixels, not in points)
+	- more documentation (RefontTree, examples)
+	- some GUI cleanup by Martin Thurn
+
 0.10
 	- fixed test error if "if.pm" is not available (thanks Jack!)
 	- canvas scrollregion fix
