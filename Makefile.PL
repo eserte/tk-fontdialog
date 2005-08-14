@@ -5,16 +5,26 @@ WriteMakefile(
     'NAME'	=> 'Tk::FontDialog',
     'VERSION_FROM' => 'FontDialog.pm', # finds $VERSION
     'PREREQ_PM' => {'Tk'             => 800},
-    'dist'      => {'COMPRESS'=>'gzip -9f', 'SUFFIX' => '.gz',
-                    'POSTOP'=>'-$(CHMOD) 644 $(DISTVNAME).tar$(SUFFIX)'},
+    'dist'      => {'POSTOP'=>'-$(CHMOD) 644 $(DISTVNAME).tar$(SUFFIX)'},
 );
 
 sub MY::postamble {
-    my $postamble = <<'EOF';
+    my $postamble = "";
+
+    if (MY->can("oneliner")) {
+	my $demo_oneliner = MY->oneliner("use blib; use Tk; use Tk::FontDialog; tkinit->FontDialog->Show");
+	$postamble = <<EOF;
+demo :: pure_all
+	$demo_oneliner
+
+EOF
+    } elsif ($^O ne "MSWin32") {
+	$postamble = <<'EOF';
 demo :: pure_all
 	$(FULLPERL) -w -Mblib -MTk -MTk::FontDialog -e 'tkinit->FontDialog->Show'
 
 EOF
+    }
 
     if (defined $ENV{USER} && $ENV{USER} eq 'eserte' && $^O =~ /bsd/i && -f "../../perl.release.mk") {
 	$postamble .= <<'EOF';
