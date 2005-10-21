@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.24 2005/10/21 21:43:46 eserte Exp $
+# $Id: FontDialog.pm,v 1.25 2005/10/21 21:46:09 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998,1999,2003,2004,2005 Slaven Rezic. All rights reserved.
@@ -821,17 +821,18 @@ L<http://cvs.sourceforge.net/viewcvs.py/srezic/Tk-FontDialog/>).
 
 =head1 SEE ALSO
 
-L<Tk::font|Tk::font>
+L<Tk::Font>
 
 =head1 AUTHOR
 
 Slaven Rezic <slaven@rezic.de>
 
-Suggestions by Michael Houghton <herveus@Radix.Net>.
+Suggestions by Michael Houghton, Martin Thurn, Jack, Justin Kozlowitz
+and others.
 
 =head1 COPYRIGHT
 
-Copyright (c) 1998,1999,2003,2004 Slaven Rezic. All rights reserved.
+Copyright (c) 1998,1999,2003,2004,2005 Slaven Rezic. All rights reserved.
 This module is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
