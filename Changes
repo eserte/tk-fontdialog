@@ -1,5 +1,8 @@
 Revision history for Perl extension Tk::FontDialog.
 
+0.12
+	- new method Tk::Widget::GetDescriptiveFontName
+
 0.11
 	- introduced FontGetPoints, needed for Tk804.xxx (font sizes
 	  are now in pixels, not in points)
