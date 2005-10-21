@@ -1,13 +1,25 @@
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.pl'
+#!/usr/bin/perl -w
+# -*- perl -*-
 
-######################### We start with some black magic to print on failure.
+#
+# $Id: 00-basic.t,v 1.10 2005/10/21 21:42:54 eserte Exp $
+# Author: Slaven Rezic
+#
 
-# Change 1..1 below to 1..last_test_to_print .
-# (It may become useful if the test is moved to ./t subdirectory.)
+use strict;
 
-BEGIN { $| = 1; print "1..3\n"; }
-END {print "not ok 1\n" unless $loaded;}
+BEGIN {
+    if (!eval q{
+	use Test::More;
+	1;
+    }) {
+	print "1..0 # skip: no Test::More module\n";
+	exit;
+    }
+}
+
+plan tests => 4;
+
 use Tk;
 use Tk::FontDialog;
 
@@ -22,24 +34,25 @@ BEGIN {
 
 if (!defined $ENV{BATCH}) { $ENV{BATCH} = 1 }
 
-$loaded = 1;
-my $ok = 1;
-print "ok ". $ok++ . "\n";
+pass("Module loaded");
 
-$top=new MainWindow;
+my $top = new MainWindow;
 
-my $fd;
+my($b, $f, $fd);
+
 $b = $top->Button(-text => 'Choose Font',
 		  -command => sub {
-		      $font = $fd->Show;
+		      my $font = $fd->Show;
 		      apply_font($font);
 		  })->pack;
-$f = $top->Frame->pack;
-$f->Label(-text => 'Test RefontTree 1')->pack;
-$f2 = $f->Frame->pack;
-$f2->Label(-text => 'Test RefontTree 2')->pack;
-$c = $f2->Canvas(-width => 100, -height => 30)->pack;
-$c->createText(0,0,-anchor => 'nw', -text => 'Canvas Text');
+{
+    $f = $top->Frame->pack;
+    $f->Label(-text => 'Test RefontTree 1')->pack;
+    my $f2 = $f->Frame->pack;
+    $f2->Label(-text => 'Test RefontTree 2')->pack;
+    my $c = $f2->Canvas(-width => 100, -height => 30)->pack;
+    $c->createText(0,0,-anchor => 'nw', -text => 'Canvas Text');
+}
 
 $fd = $top->FontDialog(-nicefont => 0,
 		       #-font => $b->cget(-font),
@@ -60,25 +73,41 @@ $fd = $top->FontDialog(-nicefont => 0,
 		       ($Tk::VERSION >= 804 && $sampletext ? (-sampletext => $sampletext) : ()),
 		      );
 
+my $fontname;
 eval {
     my $fd2 = $top->FontDialog;
-    $fd2->Show('-_testhack' => 1);
+    $fontname = $fd2->Show('-_testhack' => $ENV{BATCH});
 };
-if ($@) { print "not " } print "ok " . $ok++ . "\n";
+is($@, "", "No exceptions");
 
+SKIP:
+{
+    skip("No font selected", 1) if (!defined $fontname);
+    my $descriptive = $top->GetDescriptiveFontName($fontname);
+    my %fa  = $top->fontActual($fontname);
+    my %fa2 = $top->fontActual($descriptive);
+    is_deeply(\%fa, \%fa2, "Same font");
+}
+    
 
-$bf = $top->Frame->pack;
-$bf->Button(-text => 'OK',
-	    -command => sub { print "ok $ok\n";
-			      $top->destroy;})->pack(-side => 'left');
+my $bf = $top->Frame->pack;
+my $okb = $bf->Button(-text => 'OK',
+		      -command => sub {
+			  pass();
+			  $top->destroy;
+		      }
+		     )->pack(-side => 'left');
 $bf->Button(-text => 'Not OK',
-	    -command => sub { print "not ok $ok\n";
-			      $top->destroy;})->pack(-side => 'left');
+	    -command => sub {
+		fail();
+		$top->destroy;
+	    }
+	   )->pack(-side => 'left');
 
 if ($ENV{BATCH}) {
     $top->after(1000, sub {
-	$top->destroy;
-    });
+		    $okb->invoke;
+		});
 }
 
 MainLoop;
