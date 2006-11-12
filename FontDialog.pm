@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.26 2005/10/21 21:46:35 eserte Exp $
+# $Id: FontDialog.pm,v 1.27 2006/11/12 21:48:03 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998,1999,2003,2004,2005 Slaven Rezic. All rights reserved.
@@ -451,7 +451,9 @@ sub InsertFamilies {
 	$w->{'family_index'} = [];
 	my $nicefont = $w->cget(-nicefont); # XXX name?
 	my $fixedfont = $w->cget(-fixedfont);
-	my $curr_family = $w->fontActual($w->{'curr_font'}, -family);
+	my %fa = $w->fontActual($w->{'curr_font'});
+	my $curr_family = $fa{'-family'};
+	my $curr_size = $fa{'-size'};
 	my $famlb = $w->Subwidget('family_list');
 	$famlb->delete('all');
 	my @fam = sort $w->fontFamilies;
@@ -465,7 +467,7 @@ sub InsertFamilies {
 	    $w->{'family_index'}[$i] = $fam;
 	    my $f_style = $famlb->ItemStyle
 	      ('text',
-	       ($nicefont ? (-font => "{$fam}") : ()),
+	       ($nicefont ? (-font => "{$fam} $curr_size") : ()),
 	       -background => $bg,
 	      );
 	    $famlb->add($i, -text => $u_fam, -style => $f_style);

@@ -2,6 +2,8 @@ Revision history for Perl extension Tk::FontDialog.
 
 0.12
 	- new method Tk::Widget::GetDescriptiveFontName
+	- InsertFamilies: ttf seem to need explicite size setting
+	  (visible in nicefonts)
 
 0.11
 	- introduced FontGetPoints, needed for Tk804.xxx (font sizes
