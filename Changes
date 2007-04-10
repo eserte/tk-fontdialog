@@ -1,5 +1,9 @@
 Revision history for Perl extension Tk::FontDialog.
 
+0.13
+	- -altsample: do not display range from codepoint 128 to 160
+          rather display some non-latin1 samples
+
 0.12
 	- new method Tk::Widget::GetDescriptiveFontName
 	- InsertFamilies: ttf seem to need explicite size setting
