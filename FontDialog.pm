@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.27 2006/11/12 21:48:03 eserte Exp $
+# $Id: FontDialog.pm,v 1.28 2007/04/10 21:46:15 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998,1999,2003,2004,2005 Slaven Rezic. All rights reserved.
@@ -345,10 +345,17 @@ sub UpdateFont {
 	my $ch_width  = $w->fontMeasure($w->{'curr_font'}, 'M');
 	my $ch_height = $w->fontMetrics($w->{'curr_font'}, -linespace);
 	if ($w->{'alt_sample'}) {
+	    my $x_margin = 4;
 	    my $x;
 	    my $y = 4;
 	    for(my $i = 32; $i < 256; $i+=16) {
-		$x = 4;
+		$x = $x_margin;
+		if ($Tk::VERSION >= 804) {
+		    # Tk804 operates on Unicode codepoints
+		    # and there are no printable characters
+		    # in this region
+		    next if $i >= 128 && $i < 160;
+		}
 		for my $j (0 .. 15) {
 		    next if $i+$j == 127;
 		    my $ch = chr($i + $j);
@@ -361,6 +368,22 @@ sub UpdateFont {
 		    $x += $ch_width + 4;
 		}
 		$y += $ch_height;
+	    }
+	    if ($Tk::VERSION >= 804) {
+		$y += 5;
+		for my $string ("Latin2: "   . join("", map { chr } 0x010c,0x010d,0x010e,0x010f,0x0141,0x0142),
+				"Cyrillic: " . join("", map { chr } 0x410..0x414,0x0430..0x434),
+				"Greek: "    . join("", map { chr } 0x0391..0x0395,0x03B1..0x03B5),
+				"Hebrew: "   . join("", map { chr } 0x05D0..0x05D4),
+				"Arabic: "   . join("", map { chr($_). " " } 0x0627..0x062B),
+			       ) {
+		    $c->createText($x_margin, $y, -anchor => 'nw',
+				   -text => $string,
+				   -font => $w->{'curr_font'},
+				   -tags => 'font',
+				  );
+		    $y += $ch_height;
+		}
 	    }
 	} else {
 	    $c->createText(4, 4,
