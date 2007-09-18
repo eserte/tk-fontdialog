@@ -9,10 +9,12 @@ WriteMakefile(
 );
 
 sub MY::postamble {
+    my($MY) = @_;
+
     my $postamble = "";
 
-    if (MY->can("oneliner")) {
-	my $demo_oneliner = MY->oneliner("use blib; use Tk; use Tk::FontDialog; tkinit->FontDialog->Show");
+    if ($MY && UNIVERSAL::can($MY, "oneliner")) {
+	my $demo_oneliner = $MY->oneliner("use blib; use Tk; use Tk::FontDialog; tkinit->FontDialog->Show");
 	$postamble = <<EOF;
 demo :: pure_all
 	$demo_oneliner
