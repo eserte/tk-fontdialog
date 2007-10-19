@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.30 2007/10/18 21:22:00 eserte Exp $
+# $Id: FontDialog.pm,v 1.31 2007/10/19 19:51:33 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998,1999,2003,2004,2005 Slaven Rezic. All rights reserved.
@@ -24,7 +24,7 @@ use vars qw($VERSION @ISA);
 
 Construct Tk::Widget 'FontDialog';
 
-$VERSION = '0.13_90';
+$VERSION = '0.14';
 
 sub Populate {
     my($w, $args) = @_;
