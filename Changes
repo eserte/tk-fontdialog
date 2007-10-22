@@ -1,5 +1,8 @@
 Revision history for Perl extension Tk::FontDialog.
 
+0.15-to-be
+	- more non-latin1 samples
+
 0.14
 	- fixed Makefile.PL problem under Windows (RT #29425)
 
