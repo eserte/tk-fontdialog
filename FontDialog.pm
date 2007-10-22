@@ -2,7 +2,7 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.31 2007/10/19 19:51:33 eserte Exp $
+# $Id: FontDialog.pm,v 1.32 2007/10/22 17:53:41 eserte Exp $
 # Author: Slaven Rezic
 #
 # Copyright (C) 1998,1999,2003,2004,2005 Slaven Rezic. All rights reserved.
@@ -371,11 +371,11 @@ sub UpdateFont {
 	    }
 	    if ($Tk::VERSION >= 804) {
 		$y += 5;
-		for my $string ("Latin2: "   . join("", map { chr } 0x010c,0x010d,0x010e,0x010f,0x0141,0x0142),
-				"Cyrillic: " . join("", map { chr } 0x410..0x414,0x0430..0x434),
-				"Greek: "    . join("", map { chr } 0x0391..0x0395,0x03B1..0x03B5),
-				"Hebrew: "   . join("", map { chr } 0x05D0..0x05D4),
-				"Arabic: "   . join("", map { chr($_). " " } 0x0627..0x062B),
+		for my $string ("Latin2: "   . join("", map { chr } 0x0102,0x103,0x0104,0x0105,0x010c,0x010d,0x010e,0x010f,0x0141,0x0142,0x0160,0x0161,0x016e,0x016f,0x0170,0x0171,0x017d,0x017e),
+				"Cyrillic: " . join("", map { chr } 0x410..0x419,0x0430..0x439),
+				"Greek: "    . join("", map { chr } 0x0391..0x039a,0x03B1..0x03ba),
+				"Hebrew: "   . join("", map { chr } 0x05D0..0x05E0),
+				"Arabic: "   . join("", map { chr($_). " " } 0x0627..0x0637),
 			       ) {
 		    $c->createText($x_margin, $y, -anchor => 'nw',
 				   -text => $string,
