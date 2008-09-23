@@ -3,4 +3,4 @@ FontDialog.pm
 MANIFEST
 Makefile.PL
 README
-test.pl
+t/00-basic.t
