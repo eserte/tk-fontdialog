@@ -774,7 +774,7 @@ method B<RecolorTree>. Calling B<RefontTree> looks like this:
     $mainwindow->RefontTree(-font => $font) if defined $font;
 
 By default RefontTree does not change the font of canvas elements.
-This can be done by specifying C<-canvas => 1>.
+This can be done by specifying C<< -canvas => 1 >>.
 
 =item B<GetDescriptiveFontName>(I<$fontname>)
 
