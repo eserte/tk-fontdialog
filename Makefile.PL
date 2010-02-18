@@ -6,6 +6,11 @@ WriteMakefile(
     'VERSION_FROM' => 'FontDialog.pm', # finds $VERSION
     'PREREQ_PM' => {'Tk'             => 800},
     'dist'      => {'POSTOP'=>'-$(CHMOD) 644 $(DISTVNAME).tar$(SUFFIX)'},
+    ($ExtUtils::MakeMaker::VERSION >= 6.46
+     ? (META_MERGE => { resources => { repository => 'git://github.com/eserte/tk-fontdialog.git' },
+		      })
+     : ()
+    ),
 );
 
 sub MY::postamble {
