@@ -5,7 +5,7 @@
 # $Id: FontDialog.pm,v 1.33 2008/09/23 19:23:19 eserte Exp $
 # Author: Slaven Rezic
 #
-# Copyright (C) 1998,1999,2003,2004,2005 Slaven Rezic. All rights reserved.
+# Copyright (C) 1998,1999,2003,2004,2005,2010 Slaven Rezic. All rights reserved.
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
 #
@@ -832,8 +832,7 @@ To get the "descriptive" font name:
 
 The latest released version is available from cpan (e.g.
 L<http://search.cpan.org/~srezic/>). The latest development version is
-available from SourceForge CVS (e.g.
-L<http://cvs.sourceforge.net/viewcvs.py/srezic/Tk-FontDialog/>).
+available from github (L<http://github.com/eserte/tk-fontdialog>).
 
 =head1 BUGS/TODO
 
@@ -857,7 +856,7 @@ and others.
 
 =head1 COPYRIGHT
 
-Copyright (c) 1998,1999,2003,2004,2005 Slaven Rezic. All rights reserved.
+Copyright (c) 1998,1999,2003,2004,2005,2010 Slaven Rezic. All rights reserved.
 This module is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
