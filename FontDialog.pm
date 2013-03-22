@@ -2,10 +2,9 @@
 # -*- perl -*-
 
 #
-# $Id: FontDialog.pm,v 1.33 2008/09/23 19:23:19 eserte Exp $
 # Author: Slaven Rezic
 #
-# Copyright (C) 1998,1999,2003,2004,2005,2010 Slaven Rezic. All rights reserved.
+# Copyright (C) 1998,1999,2003,2004,2005,2010,2011,2013 Slaven Rezic. All rights reserved.
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
 #
@@ -24,7 +23,7 @@ use vars qw($VERSION @ISA);
 
 Construct Tk::Widget 'FontDialog';
 
-$VERSION = '0.15';
+$VERSION = '0.16';
 
 sub Populate {
     my($w, $args) = @_;

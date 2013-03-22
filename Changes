@@ -1,5 +1,9 @@
 Revision history for Perl extension Tk::FontDialog.
 
+0.16
+	- no code changes, just a minor Pod fix (RT #51766)
+	  and changed the repo address to github
+
 0.15
 	- more non-latin1 samples
 	- test script more robust, check for DISPLAY first
