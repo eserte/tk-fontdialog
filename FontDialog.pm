@@ -415,7 +415,7 @@ sub Show {
     $w->transient($w->Parent->toplevel);
     my $oldFocus = $w->focusCurrent;
     my $oldGrab = $w->grab('current');
-    my $grabStatus = $oldGrab->grab('status') if ($oldGrab);
+    my $grabStatus; $grabStatus = $oldGrab->grab('status') if ($oldGrab);
     $w->grab;
 
     $w->InsertFamilies();
