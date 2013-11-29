@@ -41,6 +41,8 @@ SKIP: {
     skip "Cannot open main window. Error message <$@>", $real_tests
 	if $@ || !$top;
 
+    $top->geometry('+1+1');
+
     my($b, $f, $fd);
 
     my $apply_font = sub {
