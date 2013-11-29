@@ -49,6 +49,9 @@ EOF
     if (defined $ENV{USER} && $ENV{USER} eq 'eserte' && $^O =~ /bsd/i && -f "../../perl.release.mk") {
 	$postamble .= <<'EOF';
 
+# Test::Distribution complains about Tk::Font which is part of Tk
+PERL_TEST_DISTRIBUTION_OPTS=not podcover,prereq
+
 .include "../../perl.release.mk"
 .include "../../perl.cvs.mk"
 
