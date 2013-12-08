@@ -23,7 +23,7 @@ use vars qw($VERSION @ISA);
 
 Construct Tk::Widget 'FontDialog';
 
-$VERSION = '0.16';
+$VERSION = '0.17';
 
 sub Populate {
     my($w, $args) = @_;
