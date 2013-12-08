@@ -1,6 +1,7 @@
 Changes
 FontDialog.pm
 MANIFEST
+MANIFEST.SKIP
 Makefile.PL
 README
 t/00-basic.t
