@@ -53,7 +53,7 @@ EOF
 PERL_TEST_DISTRIBUTION_OPTS=not podcover,prereq
 
 .include "../../perl.release.mk"
-.include "../../perl.cvs.mk"
+.include "../../perl.git.mk"
 
 EOF
     }
