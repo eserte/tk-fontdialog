@@ -278,7 +278,7 @@ sub Populate {
     $w->grid('rowconfigure',    0, -minsize => 4);
     $w->grid('rowconfigure',    8, -minsize => 4);
 
-    $w->bind("<$family_res{'key'}>" => sub { $famlb->focus }) 
+    $w->bind("<$family_res{'key'}>" => sub { $famlb->focus })
       if $family_res{'key'};
     $w->bind("<$size_res{'key'}>"   => sub { $sizelb->focus })
       if $size_res{'key'};
@@ -313,7 +313,7 @@ sub Populate {
                              'white'],
        -nicefont        => [ 'PASSIVE', undef, undef, 0],
        -fixedfont       => [ 'PASSIVE', undef, undef, 0],
-       -sampletext      => [ 'PASSIVE', undef, undef, 
+       -sampletext      => [ 'PASSIVE', undef, undef,
 		             'The Quick Brown Fox Jumps Over The Lazy Dog.'],
        -title           => [ 'METHOD', undef, undef, 'Choose font'],
        -customsizetitle => [ 'PASSIVE', undef, undef, 'Choose font size'],
@@ -592,7 +592,7 @@ package       # hide from CPAN indexer
 # XXX Refont Canvases?
 sub RefontTree {
     my ($w, %args) = @_;
-    my $dbOption;
+#    my $dbOption;
     my $value;
     my $font = $args{-font} or die "No font specified";
     eval { local $SIG{'__DIE__'}; $value = $w->cget(-font) };
