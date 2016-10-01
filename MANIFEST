@@ -1,5 +1,5 @@
 Changes
-FontDialog.pm
+lib/Tk/FontDialog.pm
 MANIFEST
 MANIFEST.SKIP
 Makefile.PL
