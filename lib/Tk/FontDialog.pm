@@ -764,7 +764,7 @@ setting:
 
 =item B<RefontTree>(-font => I<$font>)
 
-Additionaly, the convenience method B<RefontTree> is defined in the
+Additionally, the convenience method B<RefontTree> is defined in the
 L<Tk::Widget> namespace. Using this method a font definition could be
 applied to a complete subtree of a widget. This is similar to the
 method B<RecolorTree>. Calling B<RefontTree> looks like this:
