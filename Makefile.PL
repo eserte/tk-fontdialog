@@ -18,6 +18,7 @@ WriteMakefile(
     'NAME'	=> 'Tk::FontDialog',
     'VERSION_FROM' => 'lib/Tk/FontDialog.pm', # finds $VERSIO
     'ABSTRACT_FROM' => 'lib/Tk/FontDialog.pm',
+    'LICENSE'       => 'perl_5',
     'MIN_PERL_VERSION' => 5.004,
     'PREREQ_PM' => {'Tk'             => 800},
     'dist'      => {'POSTOP'=>'-$(CHMOD) 644 $(DISTVNAME).tar$(SUFFIX)'},
