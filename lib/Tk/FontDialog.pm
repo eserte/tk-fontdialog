@@ -3,12 +3,12 @@
 #
 # Author: Slaven Rezic
 #
-# Copyright (C) 1998,1999,2003,2004,2005,2010,2011,2013,2017 Slaven Rezic. All rights reserved.
+# Copyright (C) 1998,1999,2003,2004,2005,2010,2011,2013,2017,2024 Slaven Rezic. All rights reserved.
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
 #
-# Mail: slaven@rezic.de
-# WWW:  http://www.rezic.de/eserte/
+# Mail: srezic@cpan.org
+# WWW:  https://github.com/eserte/tk-fontdialog
 #
 
 package Tk::FontDialog;
@@ -22,7 +22,7 @@ use vars qw($VERSION @ISA);
 
 Construct Tk::Widget 'FontDialog';
 
-$VERSION = '0.18';
+$VERSION = '0.19';
 
 sub Populate {
     my($w, $args) = @_;
